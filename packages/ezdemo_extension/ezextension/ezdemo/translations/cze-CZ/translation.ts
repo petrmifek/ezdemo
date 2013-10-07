@@ -1261,7 +1261,7 @@
     </message>
     <message>
         <source>Last reply</source>
-        <translation>Podlední odpověď</translation>
+        <translation>Poslední odpověď</translation>
     </message>
     <message>
         <source>Pages</source>
@@ -1358,7 +1358,7 @@
     </message>
     <message>
         <source>Last reply</source>
-        <translation>Podlední odpověď</translation>
+        <translation>Poslední odpověď</translation>
     </message>
     <message>
         <source>Forum</source>
@@ -1502,7 +1502,7 @@
     </message>
     <message>
         <source>Last reply</source>
-        <translation>Podlední odpověď</translation>
+        <translation>Poslední odpověď</translation>
     </message>
     <message>
         <source>Enter forum</source>
