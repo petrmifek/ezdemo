@@ -2,25 +2,23 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Flow
-// SOFTWARE RELEASE: 1.1.0
-// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE RELEASE: 5.4.0-beta1
+// COPYRIGHT NOTICE: Copyright (C) 1999-2014 eZ Systems AS
 // SOFTWARE LICENSE: GNU General Public License v2.0
 // NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of version 2.0  of the GNU General
+//  Public License as published by the Free Software Foundation.
 //
-//   This program is distributed in the hope that it will be useful,
+//  This program is distributed in the hope that it will be useful,
 //   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 //
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-//
-//
+//  You should have received a copy of version 2.0 of the GNU General
+//  Public License along with this program; if not, write to the Free
+//  Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+//  MA 02110-1301, USA.
 // ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 //
 class ezdemoInstaller extends eZSiteInstaller
@@ -85,8 +83,7 @@ class ezdemoInstaller extends eZSiteInstaller
             'ezgmaplocation', 
             strtolower( $this->solutionName() ), 
             'ezwt', 
-            'ezflow',
-            'ezcomments'
+            'ezflow'
         ) );
         $this->addSetting( 'version', $this->solutionVersion() );
         $this->addSetting( 'locales', eZSiteInstaller::getParam( $parameters, 'all_language_codes', array() ) );
@@ -229,6 +226,13 @@ class ezdemoInstaller extends eZSiteInstaller
                 ) 
             ), 
             array( 
+                '_function' => 'createContentSection', 
+                '_params' => array( 
+                    'name' => 'Premium content', 
+                    'navigation_part_identifier' => 'ezcontentnavigationpart' 
+                ) 
+            ), 
+            array( 
                 '_function' => 'addPoliciesForRole', 
                 '_params' => array( 
                     'role_name' => 'Anonymous', 
@@ -250,6 +254,12 @@ class ezdemoInstaller extends eZSiteInstaller
                                             'identifier' => 'banner' 
                                         ) 
                                     ),
+                                    array( 
+                                        '_function' => 'classIDbyIdentifier', 
+                                        '_params' => array( 
+                                            'identifier' => 'video' 
+                                        ) 
+                                    ),
                                     array(
                                         '_function' => 'classIDbyIdentifier',
                                         '_params' => array(
@@ -267,8 +277,65 @@ class ezdemoInstaller extends eZSiteInstaller
                         ),
                         array(
                             'module' => 'content',
+                            'function' => 'read',
+                            'limitation' => array(
+                                'Section' => array(
+                                    '_function' => 'sectionIDbyName',
+                                    '_params' => array(
+                                        'section_name' => 'Premium content'
+                                    )
+                                )
+                            )
+                        ),
+                        array(
+                            'module' => 'content',
                             'function' => 'view_embed',
-                            'limitation' => array(),
+                            'limitation' => array(
+                                'Section' => array(
+                                    '_function' => 'sectionIDbyName',
+                                    '_params' => array(
+                                        'section_name' => 'Standard'
+                                    )
+                                )
+                            )
+                        ),
+                        array(
+                            'module' => 'content',
+                            'function' => 'view_embed',
+                            'limitation' => array(
+                                'Class' => array(
+                                    array(
+                                        '_function' => 'classIDbyIdentifier',
+                                        '_params' => array(
+                                            'identifier' => 'image'
+                                        )
+                                    ),
+                                    array(
+                                        '_function' => 'classIDbyIdentifier',
+                                        '_params' => array(
+                                            'identifier' => 'banner'
+                                        )
+                                    ),
+                                    array(
+                                        '_function' => 'classIDbyIdentifier',
+                                        '_params' => array(
+                                            'identifier' => 'video'
+                                        )
+                                    ),
+                                    array(
+                                        '_function' => 'classIDbyIdentifier',
+                                        '_params' => array(
+                                            'identifier' => 'file'
+                                        )
+                                    )
+                                ),
+                                'Section' => array(
+                                    '_function' => 'sectionIDbyName',
+                                    '_params' => array(
+                                        'section_name' => 'Media'
+                                    )
+                                )
+                            )
                         )
                     ) 
                 ) 
@@ -750,11 +817,41 @@ class ezdemoInstaller extends eZSiteInstaller
                     ) 
                 ) 
             ),
+            array( 
+                '_function' => 'createContentObject', 
+                '_params' => array( 
+                    'class_identifier' => 'user_group', 
+                    'location' => 'users', 
+                    'attributes' => array( 
+                        'name' => 'Subscribers', 
+                        'description' => ''
+                    )
+                ) 
+            ),
+            array(
+                '_function' => 'createContentObject',
+                '_params' => array(
+                    'class_identifier' => 'user',
+                    'location' => 'users/Subscribers',
+                    'attributes' => array(
+                        'first_name' => 'Subscriber',
+                        'last_name' => 'User',
+                        'user_account' => 'subscriber|subscriber@ez.no|aff687ebeaa4f54c53707b7918041662|md5_user|1'
+                    )
+                )
+            ),
             array(
                 '_function' => 'setSection',
                  '_params' => array(
                      'location' => 'partner',
                      'section_name' => 'Restricted'
+                 )
+            ), 
+            array(
+                '_function' => 'setSection',
+                 '_params' => array(
+                     'location' => 'getting_started/selected_features/getting_started_with_ez_publish_platform',
+                     'section_name' => 'Premium content'
                  )
             ),
             array(
@@ -892,14 +989,26 @@ class ezdemoInstaller extends eZSiteInstaller
                     ) 
                 ) 
             ), 
-            array( 
+            array(
                 '_function' => 'renameContentObject', 
                 '_params' => array( 
                     'contentobject_id' => '11',  // 11 is id of "Guest accounts"
                     'name' => 'Members' 
                 ) 
-            ), 
-            array( 
+            ),
+            array(
+                '_function' => 'createContentObject',
+                '_params' => array(
+                    'class_identifier' => 'user',
+                    'location' => 'users/Members',
+                    'attributes' => array(
+                        'first_name' => 'Member',
+                        'last_name' => 'User',
+                        'user_account' => 'member|member@ez.no|61c4aed984adf5eb50a90802959d60e8|md5_user|1'
+                    )
+                )
+            ),
+            array(
                 '_function' => 'addPoliciesForRole', 
                 '_params' => array( 
                     'role_name' => 'Member', 
@@ -1037,8 +1146,15 @@ class ezdemoInstaller extends eZSiteInstaller
                         )
                     ) 
                 ) 
-            ), 
-            array( 
+            ),
+            array(
+                '_function' => 'addPoliciesForRole',
+                '_params' => array(
+                    'role_name' => 'Subscriber',
+                    'policies' => array()
+                )
+            ),
+            array(
                 '_function' => 'assignUserToRole', 
                 '_params' => array( 
                     'location' => 'users/members', 
@@ -1063,6 +1179,20 @@ class ezdemoInstaller extends eZSiteInstaller
                 '_function' => 'assignUserToRole', 
                 '_params' => array( 
                     'location' => 'users/partners', 
+                    'role_name' => 'Anonymous' 
+                ) 
+            ), 
+            array( 
+                '_function' => 'assignUserToRole', 
+                '_params' => array( 
+                    'location' => 'users/subscribers', 
+                    'role_name' => 'Subscriber' 
+                ) 
+            ), 
+            array( 
+                '_function' => 'assignUserToRole', 
+                '_params' => array( 
+                    'location' => 'users/subscribers', 
                     'role_name' => 'Anonymous' 
                 ) 
             ), 
@@ -1183,7 +1313,7 @@ class ezdemoInstaller extends eZSiteInstaller
     /*!
       pre-install stuff.
     */
-    function preInstall()
+    function preInstall( $siteType = array() )
     {
         // hack for images/binaryfiles
         // need to set siteaccess to have correct placement(VarDir) for files in SetupWizard
@@ -1192,7 +1322,6 @@ class ezdemoInstaller extends eZSiteInstaller
         $contentINI = eZINI::instance( 'content.ini' );
         $datatypeRepositories = $contentINI->variable( 'DataTypeSettings', 'ExtensionDirectories' );
         $datatypeRepositories[] = 'ezflow';
-        $datatypeRepositories[] = 'ezcomments';
         $datatypeRepositories[] = 'ezstarrating';
         $datatypeRepositories[] = 'ezgmaplocation';
         $contentINI->setVariables( array( 
@@ -1202,7 +1331,6 @@ class ezdemoInstaller extends eZSiteInstaller
         ) );
         $availableDatatype = $contentINI->variable( 'DataTypeSettings', 'AvailableDataTypes' );
         $availableDatatype[] = 'ezpage';
-        $availableDatatype[] = 'ezcomcomments';
         $availableDatatype[] = 'ezsrrating';
         $availableDatatype[] = 'ezgmaplocation';
         $contentINI->setVariables( array( 
@@ -1210,11 +1338,14 @@ class ezdemoInstaller extends eZSiteInstaller
                 'AvailableDataTypes' => $availableDatatype 
             ) 
         ) );
-        $this->insertDBFile( 'ezflow_extension', 'ezflow' );
-        $this->insertDBFile( 'ezcomments_extension', 'ezcomments' );
-        $this->insertDBFile( 'ezdemo_extension', 'ezdemo', false, true );
-        $this->insertDBFile( 'ezstarrating_extension', 'ezstarrating' );
-        $this->insertDBFile( 'ezgmaplocation_extension', 'ezgmaplocation' );
+
+        if( empty( $siteType ) || ( $siteType['existing_database'] != eZStepInstaller::DB_DATA_KEEP ) )
+        {
+            $this->insertDBFile( 'ezflow_extension', 'ezflow' );
+            $this->insertDBFile( 'ezdemo_extension', 'ezdemo', false, true );
+            $this->insertDBFile( 'ezstarrating_extension', 'ezstarrating' );
+            $this->insertDBFile( 'ezgmaplocation_extension', 'ezgmaplocation' );
+        }
     }
 
     function insertDBFile( $packageName, $extensionName, $loadSchema = true, $loadContent = false )
@@ -1237,21 +1368,35 @@ class ezdemoInstaller extends eZSiteInstaller
         switch ( $db->databaseName() )
         {
             case 'mysql':
-                $sqlFile = 'mysql.sql';
                 $path = $package->path() . '/ezextension/' . $extensionName . '/sql/mysql';
                 break;
             case 'postgresql':
-                $sqlFile = 'postgresql.sql';
                 $path = $package->path() . '/ezextension/' . $extensionName . '/sql/postgresql';
                 break;
         }
-        $res = $db->insertFile( $path, $sqlFile, false );
 
-        if ( !$res )
+        // We first try using schema.sql
+        if ( file_exists( "$path/schema.sql" ) )
         {
-            eZDebug::writeError( 'Can\'t initialize ' . $extensionName . ' database schema.', __METHOD__ );
+            if ( !$db->insertFile( $path, 'schema.sql', false ) )
+            {
+                eZDebug::writeError( "Can't initialize $extensionName database schema ($path/schema.sql)", __METHOD__ );
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
-            return false;
+        // and fallback to <dbtype>.sql if it fails
+        if ( file_exists( $path . '/' . $db->databaseName() . '.sql' ) )
+        {
+            if ( !$db->insertFile( $path, $db->databaseName() . '.sql', false ) )
+            {
+                eZDebug::writeError( "Can't initialize $extensionName database schema ($path/" . $db->databaseName() . '.sql)', __METHOD__ );
+                return false;
+            }
         }
 
         return true;
@@ -1599,7 +1744,9 @@ class ezdemoInstaller extends eZSiteInstaller
                         'event_calender', 
                         'landing_page', 
                         'forums', 
-                        'gallery' 
+                        'gallery',
+                        'blog',
+                        'place_list'
                     ) 
                 ) 
             ) 

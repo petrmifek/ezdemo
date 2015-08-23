@@ -3,7 +3,7 @@
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Flow
 // SOFTWARE RELEASE: 1.1.0
-// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// COPYRIGHT NOTICE: Copyright (C) 1999-2014 eZ Systems AS
 // SOFTWARE LICENSE: GNU General Public License v2.0
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
@@ -27,11 +27,11 @@
 /*
 This get called by ezstep_create_sites.php
 */
-function eZSitePreInstall( )
+function eZSitePreInstall( $siteType = array() )
 {
     $installer = new ezdemoInstaller( array( 'var_dir' => 'var/ezdemo_site' ) );
 
-    $installer->preInstall();
+    $installer->preInstall( $siteType );
 }
 
 

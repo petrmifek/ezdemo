@@ -3,7 +3,7 @@
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Flow
 // SOFTWARE RELEASE: 1.1.0
-// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// COPYRIGHT NOTICE: Copyright (C) 1999-2014 eZ Systems AS
 // SOFTWARE LICENSE: GNU General Public License v2.0
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
@@ -85,8 +85,7 @@ class ezdemoInstaller extends eZSiteInstaller
             'ezgmaplocation', 
             strtolower( $this->solutionName() ), 
             'ezwt', 
-            'ezflow',
-            'ezcomments'
+            'ezflow'
         ) );
         $this->addSetting( 'version', $this->solutionVersion() );
         $this->addSetting( 'locales', eZSiteInstaller::getParam( $parameters, 'all_language_codes', array() ) );
@@ -250,6 +249,12 @@ class ezdemoInstaller extends eZSiteInstaller
                                             'identifier' => 'banner' 
                                         ) 
                                     ),
+                                    array( 
+                                        '_function' => 'classIDbyIdentifier', 
+                                        '_params' => array( 
+                                            'identifier' => 'video' 
+                                        ) 
+                                    ),
                                     array(
                                         '_function' => 'classIDbyIdentifier',
                                         '_params' => array(
@@ -268,7 +273,52 @@ class ezdemoInstaller extends eZSiteInstaller
                         array(
                             'module' => 'content',
                             'function' => 'view_embed',
-                            'limitation' => array(),
+                            'limitation' => array(
+                                'Section' => array(
+                                    '_function' => 'sectionIDbyName',
+                                    '_params' => array(
+                                        'section_name' => 'Standard'
+                                    )
+                                )
+                            )
+                        ),
+                        array(
+                            'module' => 'content',
+                            'function' => 'view_embed',
+                            'limitation' => array(
+                                'Class' => array(
+                                    array(
+                                        '_function' => 'classIDbyIdentifier',
+                                        '_params' => array(
+                                            'identifier' => 'image'
+                                        )
+                                    ),
+                                    array(
+                                        '_function' => 'classIDbyIdentifier',
+                                        '_params' => array(
+                                            'identifier' => 'banner'
+                                        )
+                                    ),
+                                    array(
+                                        '_function' => 'classIDbyIdentifier',
+                                        '_params' => array(
+                                            'identifier' => 'video'
+                                        )
+                                    ),
+                                    array(
+                                        '_function' => 'classIDbyIdentifier',
+                                        '_params' => array(
+                                            'identifier' => 'file'
+                                        )
+                                    )
+                                ),
+                                'Section' => array(
+                                    '_function' => 'sectionIDbyName',
+                                    '_params' => array(
+                                        'section_name' => 'Media'
+                                    )
+                                )
+                            )
                         )
                     ) 
                 ) 
@@ -1191,7 +1241,6 @@ class ezdemoInstaller extends eZSiteInstaller
         $contentINI = eZINI::instance( 'content.ini' );
         $datatypeRepositories = $contentINI->variable( 'DataTypeSettings', 'ExtensionDirectories' );
         $datatypeRepositories[] = 'ezflow';
-        $datatypeRepositories[] = 'ezcomments';
         $datatypeRepositories[] = 'ezstarrating';
         $datatypeRepositories[] = 'ezgmaplocation';
         $contentINI->setVariables( array(
@@ -1201,7 +1250,6 @@ class ezdemoInstaller extends eZSiteInstaller
         ) );
         $availableDatatype = $contentINI->variable( 'DataTypeSettings', 'AvailableDataTypes' );
         $availableDatatype[] = 'ezpage';
-        $availableDatatype[] = 'ezcomcomments';
         $availableDatatype[] = 'ezsrrating';
         $availableDatatype[] = 'ezgmaplocation';
         $contentINI->setVariables( array(
@@ -1210,7 +1258,6 @@ class ezdemoInstaller extends eZSiteInstaller
             )
         ) );
         $this->insertDBFile( 'ezflow_extension', 'ezflow' );
-        $this->insertDBFile( 'ezcomments_extension', 'ezcomments' );
         $this->insertDBFile( 'ezstarrating_extension', 'ezstarrating' );
         $this->insertDBFile( 'ezgmaplocation_extension', 'ezgmaplocation' );
     }
@@ -1235,21 +1282,35 @@ class ezdemoInstaller extends eZSiteInstaller
         switch ( $db->databaseName() )
         {
             case 'mysql':
-                $sqlFile = 'mysql.sql';
                 $path = $package->path() . '/ezextension/' . $extensionName . '/sql/mysql';
                 break;
             case 'postgresql':
-                $sqlFile = 'postgresql.sql';
                 $path = $package->path() . '/ezextension/' . $extensionName . '/sql/postgresql';
                 break;
         }
-        $res = $db->insertFile( $path, $sqlFile, false );
 
-        if ( !$res )
+        // We first try using schema.sql
+        if ( file_exists( "$path/schema.sql" ) )
         {
-            eZDebug::writeError( 'Can\'t initialize ' . $extensionName . ' database shema.', __METHOD__ );
+            if ( !$db->insertFile( $path, 'schema.sql', false ) )
+            {
+                eZDebug::writeError( "Can't initialize $extensionName database schema ($path/schema.sql)", __METHOD__ );
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
-            return false;
+        // and fallback to <dbtype>.sql if it fails
+        if ( file_exists( $path . '/' . $db->databaseName() . '.sql' ) )
+        {
+            if ( !$db->insertFile( $path, $db->databaseName() . '.sql', false ) )
+            {
+                eZDebug::writeError( "Can't initialize $extensionName database schema ($path/" . $db->databaseName() . '.sql)', __METHOD__ );
+                return false;
+            }
         }
 
         return true;
@@ -1597,7 +1658,9 @@ class ezdemoInstaller extends eZSiteInstaller
                         'event_calender', 
                         'landing_page',
                         'forums', 
-                        'gallery' 
+                        'gallery',
+                        'blog',
+                        'place_list'
                     ) 
                 ) 
             ) 
